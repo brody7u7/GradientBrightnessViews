@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GradientBar">
+        <attr name="maxProgress" format="float"/>
+        <attr name="progress" format="float"/>
+        <attr name="progressStartColor" format="color|reference"/>
+        <attr name="progressEndColor" format="color|reference"/>
+        <attr name="progressBackgroundColor" format="color|reference"/>
+        <attr name="brightnessStartColor" format="color|reference"/>
+        <attr name="brightnessEndColor" format="color|reference"/>
+        <attr name="hasBrightness" format="boolean"/>
+        <attr name="cornerRadius" format="dimension"/>
+        <attr name="borderOffset" format="dimension"/>
+    </declare-styleable>
+</resources>
