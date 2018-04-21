@@ -11,5 +11,6 @@
         <attr name="hasBrightness" format="boolean"/>
         <attr name="cornerRadius" format="dimension"/>
         <attr name="borderOffset" format="dimension"/>
+        <attr name="borderRound" format="boolean"/>
     </declare-styleable>
 </resources>

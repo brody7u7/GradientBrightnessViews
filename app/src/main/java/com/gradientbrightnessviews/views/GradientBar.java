@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.gradientbrightnessviews.R;
@@ -26,18 +27,22 @@ import com.gradientbrightnessviews.R;
 
 public class GradientBar extends View {
 
-    private final int FACTOR = 130;
+    private final int FACTOR = 80;
+    private final int PADDING_NORMAL_CORNEL_DP = 2;
 
     private Paint mProgressPaint;
     private Paint mBorderPaint;
 
     private int mBorderOffset;
+    private boolean mBorderRound;
 
     private float mCurrent;
     private float mTotal;
 
     private int mWidth;
     private int mHeight;
+    private int mPaddingVertical;
+    private int mPaddingHorizontal;
 
     private float mCornerRadius = 0;
 
@@ -58,6 +63,10 @@ public class GradientBar extends View {
     private int mBrighnessStartColor;
     private int mBrighnessEndColor;
     private int[] mBrighnessColors;
+    private LinearGradient mBrighnessBorderGradient;
+    private int mBrighnessBorderStartColor;
+    private int mBrighnessBorderEndColor;
+    private int[] mBrighnessBorderColors;
     private boolean mHasBrighness;
 
 
@@ -102,6 +111,7 @@ public class GradientBar extends View {
                         ColorUtils.setAlphaComponent(mProgressEndColor, FACTOR));
                 mProgressColors = new int[]{mProgressStartColor, mProgressEndColor};
                 mBrighnessColors = new int[]{mBrighnessStartColor, mBrighnessEndColor};
+                mBorderRound = typedArray.getBoolean(R.styleable.GradientBar_borderRound, false);
             }finally {
                 if(typedArray != null)
                     typedArray.recycle();
@@ -120,8 +130,12 @@ public class GradientBar extends View {
             mBrighnessStartColor = ColorUtils.setAlphaComponent(mProgressStartColor, FACTOR);
             mBrighnessEndColor = ColorUtils.setAlphaComponent(mProgressEndColor, FACTOR);
             mBrighnessColors = new int[]{mBrighnessStartColor, mBrighnessEndColor};
+            mBorderRound = false;
         }
-
+        mPaddingVertical = Math.round(PADDING_NORMAL_CORNEL_DP * context.getResources().getDisplayMetrics().density);
+        mBrighnessBorderStartColor = ColorUtils.setAlphaComponent(mProgressStartColor, FACTOR);
+        mBrighnessBorderEndColor = ColorUtils.setAlphaComponent(mProgressEndColor, FACTOR);
+        mBrighnessBorderColors = new int[]{mBrighnessBorderStartColor, mBrighnessBorderEndColor};
         initPaints();
     }
 
@@ -131,7 +145,7 @@ public class GradientBar extends View {
         mBorderRect = new RectF();
 
         mProgressXferMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP);
-        mGradientXferMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP);
+        mGradientXferMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
 
         mProgressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mProgressPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -144,6 +158,7 @@ public class GradientBar extends View {
 
         mProgressGradient = new LinearGradient(0, 0, mWidth, 0, mProgressColors, null, Shader.TileMode.CLAMP);
         mBrighnessGradient = new LinearGradient(0, 0, mWidth, 0, mBrighnessColors, null, Shader.TileMode.CLAMP);
+        mBrighnessBorderGradient = new LinearGradient(0, 0, mWidth, 0 , mBrighnessBorderColors, null, Shader.TileMode.CLAMP);
     }
 
     @Override
@@ -153,6 +168,11 @@ public class GradientBar extends View {
         mWidth = w;
         mHeight = h;
         updateGradient();
+
+        if(mBorderRound)
+            mPaddingHorizontal = Math.round(mHeight / 2.0f);
+        else
+            mPaddingHorizontal = mPaddingVertical;
     }
 
     @Override
@@ -175,7 +195,7 @@ public class GradientBar extends View {
         mBackgroundRect.set(mBorderOffset, mBorderOffset, getWidth() - mBorderOffset, getHeight() - mBorderOffset);
         mBorderRect.set(0, 0, getWidth(), getHeight());
 
-        if(mHasBrighness && progress == 1){
+        /*if(mHasBrighness && progress == 1){
             canvas.drawRoundRect(mBackgroundRect, mCornerRadius, mCornerRadius, mProgressPaint);
 
             mProgressPaint.setShader(mProgressGradient);
@@ -200,12 +220,48 @@ public class GradientBar extends View {
             mProgressPaint.setXfermode(null);
 
             //canvas.drawRoundRect(mBackgroundRect, mCornerRadius, mCornerRadius, mBorderPaint);
+        }*/
+
+        int borderPlusPadding = mBorderOffset + mPaddingHorizontal;
+        //BRILLO
+        if(mHasBrighness && mCurrent == mTotal){
+            mProgressPaint.setStrokeWidth(mHeight - 2 * mBorderOffset - 2 * mPaddingVertical);
+            mProgressPaint.setShader(mBrighnessGradient);
+            mProgressPaint.setXfermode(null);
+            if(mBorderRound)
+                mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+            canvas.drawLine(borderPlusPadding, mHeight / 2, mWidth - borderPlusPadding, mHeight / 2, mProgressPaint);
+
+            mBorderPaint.setShader(mBrighnessBorderGradient);
+            mBorderPaint.setStrokeWidth(mHeight - 2 * mPaddingVertical);
+            mBorderPaint.setXfermode(mGradientXferMode);
+            if(mBorderRound)
+                mBorderPaint.setStrokeCap(Paint.Cap.ROUND);
+            canvas.drawLine(mPaddingHorizontal, mHeight / 2, mWidth - mPaddingHorizontal, mHeight / 2, mBorderPaint);
+        }else{
+            //BACKGROUND
+            mProgressPaint.setStrokeWidth(mHeight - 2 * mBorderOffset - 2 * mPaddingVertical);
+            mProgressPaint.setShader(null);
+            mProgressPaint.setXfermode(null);
+            mProgressPaint.setColor(mBackgroundColor);
+            if(mBorderRound)
+                mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+            canvas.drawLine(borderPlusPadding, mHeight / 2, mWidth - borderPlusPadding, mHeight / 2, mProgressPaint);
+
+            //PROGRESS
+            if(progress > 0){
+                mProgressPaint.setShader(mProgressGradient);
+                mProgressPaint.setXfermode(mProgressXferMode);
+                float stopX = (mWidth - borderPlusPadding) / mTotal * mCurrent;
+                canvas.drawLine(borderPlusPadding, mHeight / 2, stopX, mHeight / 2, mProgressPaint);
+            }
         }
     }
 
     private void updateGradient(){
         mProgressGradient = new LinearGradient(0, 0, mWidth, 0, mProgressColors, null, Shader.TileMode.CLAMP);
         mBrighnessGradient = new LinearGradient(0, 0, mWidth, 0, mBrighnessColors, null, Shader.TileMode.CLAMP);
+        mBrighnessBorderGradient = new LinearGradient(0, 0, mWidth, 0 , mBrighnessBorderColors, null, Shader.TileMode.CLAMP);
     }
 
     public void setProgress(int progress){
