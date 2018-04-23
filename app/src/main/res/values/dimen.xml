@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="border_offset">1dp</dimen>
-    <dimen name="corner_radius">2dp</dimen>
+    <dimen name="height_progressbar">20dp</dimen>
+    <dimen name="arc_width">10dp</dimen>
 </resources>

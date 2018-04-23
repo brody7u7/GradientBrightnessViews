@@ -9,9 +9,8 @@
 
     <com.gradientbrightnessviews.views.GradientBar
         android:id="@+id/gradientBar"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,5 +23,16 @@
         app:progressStartColor="#ff2d73"
         app:progressEndColor="#ff9e3e"
         app:hasBrightness="true"/>
+
+    <com.gradientbrightnessviews.views.GradientSeekBar
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="50dp"
+        app:endAngle="360"
+        app:startAngle="180"
+        app:arcWidth="40dp"/>
 
 </android.support.constraint.ConstraintLayout>

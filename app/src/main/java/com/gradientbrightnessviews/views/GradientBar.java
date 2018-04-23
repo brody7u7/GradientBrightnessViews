@@ -4,20 +4,16 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ComposeShader;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
+import android.graphics.PorterDuffXfermode;;
 import android.graphics.Shader;
 import android.graphics.Xfermode;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 
 import com.gradientbrightnessviews.R;
@@ -131,7 +127,6 @@ public class GradientBar extends View {
             mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mBorderPaint.setShader(mBrighnessGradient);
         if(mBorderRound)
             mBorderPaint.setStrokeCap(Paint.Cap.ROUND);
 
@@ -153,10 +148,30 @@ public class GradientBar extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        //SE CALCULA EL ALTO
+        final int mode = MeasureSpec.getMode(heightMeasureSpec);
+        final int specSize = MeasureSpec.getSize(heightMeasureSpec);
+        switch (mode){
+            case MeasureSpec.EXACTLY:
+                mHeight = specSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                int wrap = getResources().getDimensionPixelSize(R.dimen.height_progressbar)
+                        + 2 * mBorderOffset + 2 * mPaddingVertical;
+                if(wrap < specSize)
+                    mHeight = wrap;
+                else
+                    mHeight = specSize;
+                break;
+            case MeasureSpec.UNSPECIFIED:
+                mHeight = getResources().getDimensionPixelSize(R.dimen.height_progressbar)
+                            + 2 * mBorderOffset + 2 * mPaddingVertical;
+                break;
+        }
+
         mWidth = MeasureSpec.getSize(widthMeasureSpec);
-        mHeight = MeasureSpec.getSize(heightMeasureSpec);
         setMeasuredDimension(mWidth, mHeight);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override

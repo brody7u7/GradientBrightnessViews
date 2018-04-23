@@ -10,4 +10,18 @@
         <attr name="borderOffset" format="dimension"/>
         <attr name="borderRound" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="GradientSeekBar">
+        <attr name="maxProgress"/>
+        <attr name="minProgress" format="float"/>
+        <attr name="progress"/>
+        <attr name="progressStartColor"/>
+        <attr name="progressEndColor"/>
+        <attr name="progressBackgroundColor"/>
+        <attr name="hasBrightness"/>
+        <attr name="borderOffset"/>
+        <attr name="borderRound"/>
+        <attr name="startAngle" format="integer"/>
+        <attr name="endAngle" format="integer" />
+        <attr name="arcWidth" format="dimension"/>
+    </declare-styleable>
 </resources>
