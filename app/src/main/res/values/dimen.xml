@@ -3,4 +3,5 @@
     <dimen name="border_offset">1dp</dimen>
     <dimen name="height_progressbar">20dp</dimen>
     <dimen name="arc_width">10dp</dimen>
+    <dimen name="text_size">20dp</dimen>
 </resources>

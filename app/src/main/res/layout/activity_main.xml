@@ -25,14 +25,25 @@
         app:hasBrightness="true"/>
 
     <com.gradientbrightnessviews.views.GradientSeekBar
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:id="@+id/arcGradient"
+        android:background="#000000"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="50dp"
-        app:endAngle="360"
+        app:progressStartColor="#ff2d73"
+        app:progressEndColor="#ff9e3e"
+        app:swipeAngle="90"
         app:startAngle="180"
-        app:arcWidth="40dp"/>
+        app:arcWidth="40dp"
+        app:hasBrightness="true"
+        app:borderOffset="8dp"
+        app:maxProgress="5"
+        app:minProgress="0"
+        app:progress="5"
+        app:textProgressColor="#ffffff"
+        app:textProgressSize="100dp"/>
 
 </android.support.constraint.ConstraintLayout>

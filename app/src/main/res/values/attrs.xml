@@ -21,7 +21,17 @@
         <attr name="borderOffset"/>
         <attr name="borderRound"/>
         <attr name="startAngle" format="integer"/>
-        <attr name="endAngle" format="integer" />
+        <attr name="swipeAngle" format="integer" />
         <attr name="arcWidth" format="dimension"/>
+        <attr name="thumb" format="reference"/>
+        <attr name="textProgressSize" format="dimension"/>
+        <attr name="textProgressColor" format="color"/>
+        <attr name="arcCenter" format="enum">
+            <enum name="center" value="0"/>
+            <enum name="top" value="1"/>
+            <enum name="bottom" value="2"/>
+            <enum name="right" value="3"/>
+            <enum name="left" value="4"/>
+        </attr>
     </declare-styleable>
 </resources>
