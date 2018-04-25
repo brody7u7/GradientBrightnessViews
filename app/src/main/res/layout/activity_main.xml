@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        app:progress="5"
+        app:progress="2"
         app:maxProgress="5"
         app:borderOffset="10dp"
         app:borderRound="true"
@@ -38,13 +38,13 @@
         app:startAngle="180"
         app:arcWidth="40dp"
         app:hasBrightness="true"
-        app:borderOffset="8dp"
+        app:borderOffset="6dp"
         app:maxProgress="5"
         app:minProgress="0"
         app:progress="5"
         app:textProgressColor="#ffffff"
         app:textProgressSize="100dp"
         app:innerCircleColor="#000000"
-        app:borderRound="false"/>
+        app:borderRound="false" />
 
 </android.support.constraint.ConstraintLayout>

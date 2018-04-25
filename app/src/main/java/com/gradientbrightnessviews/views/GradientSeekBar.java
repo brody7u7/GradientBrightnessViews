@@ -176,12 +176,16 @@ public class GradientSeekBar extends View {
         mProgressPaint.setStrokeWidth(mArcWidth);
         if(mBorderRound)
             mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+        else
+            mProgressPaint.setStrokeCap(Paint.Cap.SQUARE);
 
         mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mBorderPaint.setStyle(Paint.Style.STROKE);
         mBorderPaint.setStrokeWidth(mArcWidth + 2 * mBorderOffset);
         if(mBorderRound)
             mBorderPaint.setStrokeCap(Paint.Cap.ROUND);
+        else
+            mBorderPaint.setStrokeCap(Paint.Cap.SQUARE);
 
         mTextPaint = new Paint();
         mTextPaint.setColor(mTextColor);
@@ -196,12 +200,12 @@ public class GradientSeekBar extends View {
         float[] positions = new float[]{0.01f, 1f / 360f * mSwipeAngle};
         Matrix matrix = new Matrix();
         matrix.preRotate(mStartAngle, mSeekBarRect.centerX(), mSeekBarRect.centerY());
-        mProgressGradient = new SweepGradient(mSeekBarRect.centerX(), mSeekBarRect.centerY(), mProgressColors, null);
+        mProgressGradient = new SweepGradient(mSeekBarRect.centerX(), mSeekBarRect.centerY(), mProgressColors, positions);
         mProgressGradient.setLocalMatrix(matrix);
 
         int[] colors = {ColorUtils.setAlphaComponent(mProgressStartColor, FACTOR),
                 ColorUtils.setAlphaComponent(mProgressEndColor, FACTOR)};
-        mBrighnessGradient = new SweepGradient(mBrightnessRect.centerX(), mBrightnessRect.centerY(), colors, null);
+        mBrighnessGradient = new SweepGradient(mBrightnessRect.centerX(), mBrightnessRect.centerY(), colors, positions);
         mBrighnessGradient.setLocalMatrix(matrix);
     }
 
@@ -212,9 +216,13 @@ public class GradientSeekBar extends View {
         mWidth = w;
         mHeight = h;
 
-        mBrightnessRect.set(mPaddingHorizontal, mPaddingVertical, mWidth * 2f - mPaddingHorizontal, mHeight * 2f - mPaddingVertical);
-        mSeekBarRect.set(mPaddingHorizontal + mBorderOffset / 10f, mPaddingVertical + mBorderOffset / 10f,
-                mWidth * 2f - mPaddingHorizontal - mBorderOffset / 10f, mHeight * 2f - mPaddingVertical - mBorderOffset / 10f);
+        mBrightnessRect.set(mPaddingHorizontal, mPaddingVertical,
+                mWidth * 2f - mPaddingHorizontal,
+                mHeight * 2f - mPaddingVertical);
+        mSeekBarRect.set(mPaddingHorizontal + mBorderOffset / 10f,
+                mPaddingVertical + mBorderOffset / 10f,
+                mWidth * 2f - mPaddingHorizontal - mBorderOffset / 10f,
+                mHeight * 2f - mPaddingVertical - mBorderOffset / 10f);
 
         mCx = mSeekBarRect.centerX();
         mCy = mSeekBarRect.centerY();
@@ -301,9 +309,9 @@ public class GradientSeekBar extends View {
 
                 if(checkTouch(x, y)){
                     double angle = Math.toDegrees(Math.atan2((mCy - y), (mCx - x)));
-                    float progress = getProgressFromAngle(Double.valueOf(angle).floatValue());
-                    Log.i("Flav", "touch dentro de GradientSeekBar. Angulo: " + angle + " Progresp: " + progress);
-                    if(Math.round(progress) != mProgress){
+                    int progress = Math.round(getProgressFromAngle(Double.valueOf(angle).floatValue()));
+                    //Log.i("Flav", "touch dentro de GradientSeekBar. Angulo: " + angle + " Progresp: " + progress);
+                    if(progress != mProgress && progress >= mMinValue && progress <= mMaxValue){
                         setProgress(Math.round(progress));
                         onProgressChanged(mProgress);
                     }
@@ -337,7 +345,8 @@ public class GradientSeekBar extends View {
 
     private boolean checkTouch(float x, float y){
         double distance = Math.sqrt((x - mCx) * (x - mCx) + (y - mCy) * (y - mCy));
-        return distance >= mArcInnerRadius && distance <= (mArcRadius);
+        //return distance >= mArcInnerRadius && distance <= (mArcRadius);
+        return distance <= (mArcRadius);
     }
 
     public void setProgress(int progress){
