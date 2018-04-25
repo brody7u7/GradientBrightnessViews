@@ -21,21 +21,21 @@ public class MainActivity extends AppCompatActivity {
         gradientBar = findViewById(R.id.gradientBar);
         gradientSeekBar = findViewById(R.id.arcGradient);
 
-        new CountDownTimer(30000, 500){
-            @Override
-            public void onTick(long millisUntilFinished) {
-                gradientBar.setProgress(progress);
-                gradientSeekBar.setProgress(progress);
-                progress++;
-                if(progress > gradientBar.getMaxProgress()){
-                    progress = 0;
-                }
-            }
-
-            @Override
-            public void onFinish() {
-
-            }
-        }.start();
+//        new CountDownTimer(30000, 500){
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                gradientBar.setProgress(progress);
+//                gradientSeekBar.setProgress(progress);
+//                progress++;
+//                if(progress > gradientBar.getMaxProgress()){
+//                    progress = 0;
+//                }
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//
+//            }
+//        }.start();
     }
 }

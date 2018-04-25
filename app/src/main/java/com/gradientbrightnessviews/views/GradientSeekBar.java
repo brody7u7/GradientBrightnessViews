@@ -18,6 +18,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.gradientbrightnessviews.R;
@@ -37,8 +39,8 @@ public class GradientSeekBar extends View {
     private Paint mTextPaint;
 
     private int mArcWidth;
-    private int mArcRadius;
-    private int mArcInnerRadius;
+    private float mArcRadius;
+    private float mArcInnerRadius;
     private int mBorderOffset;
     private boolean mBorderRound;
     private boolean mHasBrighness;
@@ -51,7 +53,7 @@ public class GradientSeekBar extends View {
     private int mHeight;
     private int mPaddingVertical;
     private int mPaddingHorizontal;
-    private int mCx, mCy;
+    private float mCx, mCy;
 
     private int mStartAngle;
     private int mSwipeAngle;
@@ -78,6 +80,9 @@ public class GradientSeekBar extends View {
 
     private float mTextSize;
     private int mTextColor;
+    private int mInnerCircleColor;
+
+    private OnSeekArcChangeListener mOnSeekArcChangeListener;
 
     public GradientSeekBar(Context context) {
         super(context);
@@ -125,6 +130,7 @@ public class GradientSeekBar extends View {
                         getResources().getDimensionPixelSize(R.dimen.text_size));
                 mTextColor = typedArray.getColor(R.styleable.GradientSeekBar_textProgressColor,
                         ContextCompat.getColor(context, R.color.colorPrimaryDark));
+                mInnerCircleColor = typedArray.getColor(R.styleable.GradientSeekBar_innerCircleColor, Color.WHITE);
             }finally {
                 if(typedArray != null)
                     typedArray.recycle();
@@ -146,6 +152,7 @@ public class GradientSeekBar extends View {
             mHasThumb = false;
             mTextSize = getResources().getDimensionPixelSize(R.dimen.text_size);
             mTextColor = ContextCompat.getColor(context, R.color.colorPrimaryDark);
+            mInnerCircleColor = Color.WHITE;
         }
 
         mBorderGradientOffset =  0.3f * context.getResources().getDisplayMetrics().density;
@@ -179,6 +186,7 @@ public class GradientSeekBar extends View {
         mTextPaint = new Paint();
         mTextPaint.setColor(mTextColor);
         mTextPaint.setTextSize(mTextSize);
+        mTextPaint.setStyle(Paint.Style.FILL);
 
         mSeekBarRect = new RectF();
         mBrightnessRect = new RectF();
@@ -188,15 +196,14 @@ public class GradientSeekBar extends View {
         float[] positions = new float[]{0.01f, 1f / 360f * mSwipeAngle};
         Matrix matrix = new Matrix();
         matrix.preRotate(mStartAngle, mSeekBarRect.centerX(), mSeekBarRect.centerY());
-        mProgressGradient = new SweepGradient(mSeekBarRect.centerX(), mSeekBarRect.centerY(), mProgressColors, positions);
+        mProgressGradient = new SweepGradient(mSeekBarRect.centerX(), mSeekBarRect.centerY(), mProgressColors, null);
         mProgressGradient.setLocalMatrix(matrix);
 
         int[] colors = {ColorUtils.setAlphaComponent(mProgressStartColor, FACTOR),
                 ColorUtils.setAlphaComponent(mProgressEndColor, FACTOR)};
-        mBrighnessGradient = new SweepGradient(mBrightnessRect.centerX(), mBrightnessRect.centerY(), colors, positions);
+        mBrighnessGradient = new SweepGradient(mBrightnessRect.centerX(), mBrightnessRect.centerY(), colors, null);
         mBrighnessGradient.setLocalMatrix(matrix);
     }
-
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -205,9 +212,15 @@ public class GradientSeekBar extends View {
         mWidth = w;
         mHeight = h;
 
-        mBrightnessRect.set(mPaddingHorizontal, mPaddingVertical, mWidth * 2f, mHeight * 2f);
+        mBrightnessRect.set(mPaddingHorizontal, mPaddingVertical, mWidth * 2f - mPaddingHorizontal, mHeight * 2f - mPaddingVertical);
         mSeekBarRect.set(mPaddingHorizontal + mBorderOffset / 10f, mPaddingVertical + mBorderOffset / 10f,
-                mWidth * 2f  - mBorderOffset / 10f, mHeight * 2f - mBorderOffset / 10f);
+                mWidth * 2f - mPaddingHorizontal - mBorderOffset / 10f, mHeight * 2f - mPaddingVertical - mBorderOffset / 10f);
+
+        mCx = mSeekBarRect.centerX();
+        mCy = mSeekBarRect.centerY();
+
+        mArcInnerRadius = mSeekBarRect.right - mCx - mArcWidth / 2;
+        mArcRadius = mArcInnerRadius + mArcWidth / 2;
 
         updateGradient();
     }
@@ -225,6 +238,10 @@ public class GradientSeekBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        //SE PINTA EL INTERIOR DEL CIRCULO
+        mTextPaint.setColor(mInnerCircleColor);
+        canvas.drawCircle(mCx, mCy, mArcInnerRadius, mTextPaint);
 
         if(mHasBrighness && mProgress == mMaxValue){
             float strokeWidth = mBorderPaint.getStrokeWidth();
@@ -265,11 +282,62 @@ public class GradientSeekBar extends View {
         //SE MUESTRA EL VALOR DEL PROGRESO
         float x = mWidth - mPaddingHorizontal / 2 - mTextPaint.getTextSize() / 2;
         float y = mHeight - mPaddingVertical / 2;
+        mTextPaint.setColor(mTextColor);
         canvas.drawText(String.valueOf(Math.round(mProgress)), x, y, mTextPaint);
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                //Log.i("Flav", "touch apachurrado");
+                onStartTrackingTouch();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float x = event.getX();
+                float y = event.getY();
+                Log.i("Flav", "touch moviendo X: " + x + " Y: " + y);
+
+                if(checkTouch(x, y)){
+                    double angle = Math.toDegrees(Math.atan2((mCy - y), (mCx - x)));
+                    float progress = getProgressFromAngle(Double.valueOf(angle).floatValue());
+                    Log.i("Flav", "touch dentro de GradientSeekBar. Angulo: " + angle + " Progresp: " + progress);
+                    if(Math.round(progress) != mProgress){
+                        setProgress(Math.round(progress));
+                        onProgressChanged(mProgress);
+                    }
+                }
+                else{
+                    Log.i("Flav", "touch fuera de GradientSeekBar");
+                    return false;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                //Log.i("Flav", "touch levantado");
+                onStopTrackingTouch();
+                setPressed(false);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                //Log.i("Flav", "touch cancelado");
+                onStopTrackingTouch();
+                setPressed(false);
+                break;
+        }
+        return true;
     }
 
     private float getSweepAngle(float from, float to){
         return (to - from) / (mMaxValue - mMinValue) * mSwipeAngle;
+    }
+
+    private float getProgressFromAngle(float angle){
+        return (angle / mSwipeAngle) * (mMaxValue - mMinValue) + mMinValue;
+    }
+
+    private boolean checkTouch(float x, float y){
+        double distance = Math.sqrt((x - mCx) * (x - mCx) + (y - mCy) * (y - mCy));
+        return distance >= mArcInnerRadius && distance <= (mArcRadius);
     }
 
     public void setProgress(int progress){
@@ -279,5 +347,35 @@ public class GradientSeekBar extends View {
 
     public float getMaxProgress(){
         return mMaxValue;
+    }
+
+    public void setOnSeekArcChangeListener(OnSeekArcChangeListener listener){
+        mOnSeekArcChangeListener = listener;
+    }
+
+    private void onStartTrackingTouch(){
+        if(mOnSeekArcChangeListener != null)
+            mOnSeekArcChangeListener.onStartTrackingTouch(this);
+    }
+
+    private void onStopTrackingTouch(){
+        if(mOnSeekArcChangeListener != null)
+            mOnSeekArcChangeListener.onStopTrackingTouch(this);
+    }
+
+    private void onProgressChanged(float progress){
+        if(mOnSeekArcChangeListener != null)
+            mOnSeekArcChangeListener.onProgressChanged(this, progress);
+    }
+
+    /**
+     * METODOS DE CAMBIO DE ESTADO DEL GRADIENT SEEK BAR
+     */
+    public interface OnSeekArcChangeListener{
+        void onProgressChanged(GradientSeekBar seekArc, float progress);
+
+        void onStartTrackingTouch(GradientSeekBar seekArc);
+
+        void onStopTrackingTouch(GradientSeekBar seekArc);
     }
 }

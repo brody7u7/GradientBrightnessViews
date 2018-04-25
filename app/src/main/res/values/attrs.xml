@@ -26,6 +26,7 @@
         <attr name="thumb" format="reference"/>
         <attr name="textProgressSize" format="dimension"/>
         <attr name="textProgressColor" format="color"/>
+        <attr name="innerCircleColor" format="color"/>
         <attr name="arcCenter" format="enum">
             <enum name="center" value="0"/>
             <enum name="top" value="1"/>

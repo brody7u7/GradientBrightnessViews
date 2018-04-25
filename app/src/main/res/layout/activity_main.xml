@@ -26,7 +26,6 @@
 
     <com.gradientbrightnessviews.views.GradientSeekBar
         android:id="@+id/arcGradient"
-        android:background="#000000"
         android:layout_width="300dp"
         android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -44,6 +43,8 @@
         app:minProgress="0"
         app:progress="5"
         app:textProgressColor="#ffffff"
-        app:textProgressSize="100dp"/>
+        app:textProgressSize="100dp"
+        app:innerCircleColor="#000000"
+        app:borderRound="false"/>
 
 </android.support.constraint.ConstraintLayout>
